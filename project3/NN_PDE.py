@@ -11,7 +11,7 @@ tf.keras.backend.set_floatx("float64")
 
 class NN():
     """
-    Neural Network class for solving PDE"s. Specificly, the loss function is designed for solving
+    Neural Network class for solving PDE's. Specificly, the loss function is designed for solving
     the diffusion equation.
 
     """
@@ -171,7 +171,7 @@ def g_analytic(x, t):
     Analytical solution
     """
 
-    return np.sin(np.pi * x) * np.exp(-np.pi**2 * t)            
+    return np.sin(np.pi * x) * np.exp(-np.pi**2 * t)
 
 if __name__ == "__main__":
     
