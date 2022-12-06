@@ -11,8 +11,7 @@ tf.keras.backend.set_floatx("float64")
 
 class NN():
     """
-    Neural Network class for solving PDE"s. Specificly, the loss function is designed for solving
-    the diffusion equation.
+    Neural Network class for solving PDE"s. Specificly, the diffusion equation.
 
     """
 
