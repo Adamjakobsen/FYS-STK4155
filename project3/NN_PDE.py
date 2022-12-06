@@ -164,11 +164,11 @@ class NN():
 
             
             if epoch % 100 == 0:
-                print("Epoch: {}, Loss: {}".format(epoch, cost))
+                print(f"Epoch: {epoch}, Loss: {cost}")
 
 def g_analytic(x, t):
     """
-    Analytic solution
+    Analytical solution
     """
 
     return np.sin(np.pi * x) * np.exp(-np.pi**2 * t)            
