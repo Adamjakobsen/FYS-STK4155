@@ -4,45 +4,17 @@ import seaborn as sns
 import tensorflow as tf
 import matplotlib.pyplot as plt
 
-def plot_nn():
-    n_hidden = 100
-    
-    x0 = 0
-    x1 = 1
-    x  = np.linspace(x0, x1, 20)
-    t  = np.linspace(x0, x1, 20)
+def turn_the_lights_down_low():
+    """
+    Function for setting the plotting environment equal for all plots
+    """
 
-    
-
-    #Define architecture
-    layers = [  {"nodes":n_hidden,"activation":"tanh"},
-                {"nodes":n_hidden,"activation":"sigmoid"}
-                
-                ]
-    #Build model
-    network = nn.NN(layers,x,t)
-    model = network.model
-    optimizer = tf.keras.optimizers.Adam(learning_rate=0.01)
-    epochs = 3000
-
-    network.train(model, epochs, optimizer)
-
-    num_points = 41
-    X_test, T_test = tf.meshgrid(
-        tf.linspace(0, 1, num_points), tf.linspace(
-            0, 1, num_points)
-    )
-    x_test, t_test = tf.reshape(X_test, [-1, 1]), tf.reshape(T_test, [-1,1])
-
-    
-    g_nn = tf.reshape(network.g(model, x_test, t_test), [num_points, num_points])
-
-    context = {'font.size': 16.0,
-                'axes.labelsize': 16.0,
-                'axes.titlesize': 16.0,
-                'xtick.labelsize': 16.0,
-                'ytick.labelsize': 16.0,
-                'legend.fontsize': 16.0,
+    context = {'font.size': 20.0,
+                'axes.labelsize': 20.0,
+                'axes.titlesize': 20.0,
+                'xtick.labelsize': 20.0,
+                'ytick.labelsize': 20.0,
+                'legend.fontsize': 20.0,
                 'legend.title_fontsize': None,
                 'axes.linewidth': 0.8,
                 'grid.linewidth': 0.8,
@@ -59,12 +31,44 @@ def plot_nn():
                 'ytick.minor.size': 2.0}
 
     sns.set_theme(context=context, style="whitegrid", palette="colorblind", font="sans-serif", font_scale=1)
-    # creating the array of t=0
-    time = [0, 0.2, 0.5, 0.8]
-    xt = np.linspace(0, 1, num_points)
+    plt.rcParams['text.usetex'] = True
 
-    figure, ax = plt.subplots(2, 2, sharex=True, figsize=(12, 10))
-    figure.tight_layout()
+def plot_nn(n_epochs, learning, n_x, n_t):
+    n_hidden = 100
+    
+    x0 = 0
+    x1 = 1
+    x  = np.linspace(x0, x1, n_x)
+    t  = np.linspace(x0, x1, n_t)
+
+    turn_the_lights_down_low()  # set_theme
+
+    #Define architecture
+    layers = [  {"nodes":n_hidden,"activation":"tanh"},
+                {"nodes":n_hidden,"activation":"sigmoid"}]
+    #Build model
+    network = nn.NN(layers,x,t)
+    model = network.model
+    optimizer = tf.keras.optimizers.Adam(learning_rate=learning)
+    epochs = n_epochs
+
+    network.train(model, epochs, optimizer)
+
+
+    X_test, T_test = tf.meshgrid(
+        tf.linspace(0, 1, n_x), tf.linspace(
+            0, 1, n_t)
+    )
+    x_test, t_test = tf.reshape(X_test, [-1, 1]), tf.reshape(T_test, [-1,1])
+
+    
+    g_nn = tf.reshape(network.g(model, x_test, t_test), [n_t, n_x])
+
+    # creating the array of t=0
+    time = [0.01, 0.2, 0.5, 0.8]
+
+    figure, ax = plt.subplots(2, 2, sharex=True, figsize=(13, 10))
+    # figure.tight_layout()
     
     for i in range(4):
         if i < 2:
@@ -76,30 +80,46 @@ def plot_nn():
 
         hd = np.linspace(0, 1, 500)
         # plot
-        ax[row, col].plot(xt, g_nn[int(num_points*time[i]),:], '-', lw=2, label="NN")
+        ax[row, col].plot(x, g_nn[int(n_t*time[i]),:], '-', lw=2, label="NN")
         ax[row, col].plot(hd, analytic(hd, time[i]), "--", lw=2, label="Analytic")
-        ax[row, col].text(0.5, 0.5, "MSE = %.2g" %mse(g_nn[int(num_points*time[i]),:], analytic(xt[int(num_points * time[i])], time[i])))
+        ax[row, col].text(0.3, 0.5, "MSE = %.2g" %mse(g_nn[int(n_t*time[i]),:], analytic(x, time[i])))
         ax[row, col].set_ylim((-0.01, 1.05))
         ax[row, col].set_xlim((-0.01, 1.01))
-        ax[row, col].set_xlabel("t")
-        ax[row, col].set_ylabel("x")
+        ax[row, col].set_xlabel("x")
+        ax[row, col].set_ylabel("f(x, t=%.1f)" %time[i])
     ax[0, 1].legend()
-    plt.savefig("./figs/compare_nn_analytic.pdf")
+    figure.savefig("./figs/compare_nn_analytic_epoch%d_dx%d_dt%d.pdf" %(n_epochs, n_x, n_t))
+    del figure
+    del ax
 
-    fig = plt.figure(figsize=(12, 10))
+    fig = plt.figure(figsize=(13, 10))
     mse_list = []
 
-    for i in range(num_points):
-        mse_list.append(mse(g_nn[i,:], analytic(xt[i], xt[i])))
+    for i in range(len(t)):
+        mse_list.append(mse(g_nn[i,:], analytic(x, t[i])))
     
-    plt.plot(xt, mse_list, lw=2)
+    plt.plot(t, mse_list, lw=2)
     plt.xlim((-0.01, 1.01))
     plt.xlabel("t")
     plt.ylabel("MSE")
     plt.yscale("log")
-    fig.savefig("./figs/mse_nn_analytic.pdf")
+    fig.savefig("./figs/mse_nn_analytic_epoch%d_dx%d_dt%d.pdf" %(n_epochs, n_x, n_t))
+    del fig
 
-    return [xt, mse_list]
+    # plot close up at 0.8 t
+    fig = plt.figure(figsize=(13, 10))
+    plt.plot(x, g_nn[int(n_t*0.8),:], '-', lw=2, label="NN")
+    plt.plot(np.linspace(0, 1, 500), analytic(np.linspace(0, 1, 500), 0.8), "--", lw=2, label="Analytic")
+    plt.xlim((-0.01, 1.01))
+    plt.xlabel("x")
+    plt.ylabel("f(x, t=0.8)")
+    fig.text(0.3, 0.5, "MSE = %.2g" %mse(g_nn[int(n_t*0.8),:], analytic(x, 0.8)))
+    plt.legend()
+    
+    fig.savefig("./figs/nn_zoom_epoch%d_dx%d_dt%d.pdf" %(n_epochs, n_x, n_t))
+    del fig
+
+    return [t, mse_list]
 
 def analytic(x, t):
     return np.sin(np.pi * x) * np.exp(-np.pi**2 * t)
