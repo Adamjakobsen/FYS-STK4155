@@ -75,9 +75,9 @@ class NN_eigen():
         x=tf.transpose(g)
         dx_dt=tf.transpose(dg_dt)
 
-        xx=tf.reduce_sum(tf.multiply(x,x))
+        xx=tf.tensordot(x,x,axes=2)
         Ax=tf.matmul(self.A,x)
-        xAx=tf.reduce_sum(tf.multiply(x,Ax))
+        xAx=tf.tensordot(x,Ax,axes=2)
 
         I= tf.eye(tf.shape(self.A)[0], dtype=tf.float64) 
 
