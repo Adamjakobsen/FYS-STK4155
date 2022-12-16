@@ -35,6 +35,9 @@ class NN():
 
         layer_list.append(tf.keras.layers.Dense(1, name="output"))
         self.model = tf.keras.Sequential(layer_list)
+
+        self.learning_list = []
+        self.epoch_list = []
         
 
     def get_data(self,x,t):
@@ -162,9 +165,11 @@ class NN():
             cost, gradients = self.grad(model)
             optimizer.apply_gradients(zip(gradients, model.trainable_variables))
 
-            
-            if epoch % 100 == 0:
-                print(f"Epoch: {epoch}, Loss: {cost}")
+            self.learning_list.append(cost)
+            self.epoch_list.append(epoch)
+    
+    def learning_history(self):
+        return self.epoch_list, self.learning_list
 
 def g_analytic(x, t):
     """

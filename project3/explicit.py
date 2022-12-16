@@ -1,4 +1,6 @@
 import numpy as np
+import plot_nn as nn
+import matplotlib.pyplot as plt
 
 class Explicit():
     """
@@ -22,11 +24,15 @@ class Explicit():
         self.dt = dt
 
         # check stability
-        assert self.dt/self.h**2 <= 0.5, "Stability criterion not met"
+        if (self.dt/(self.h**2) <= 0.5) :
+            print("Stability criteria met")
+        else:
+            print("Stability criteria not met, setting largest possible dt")
+            self.dt = 0.5 * self.h**2
         
         # useful variables
-        self.Nt = int(1/dt)
-        self.Nx = int(1/h)
+        self.Nt = int(1/self.dt) + 1
+        self.Nx = int(1/self.h) + 1
 
         # creating the storage in which to have the evolution
         self.storage = np.zeros((self.Nt, self.Nx))
@@ -75,38 +81,17 @@ class Explicit():
         return u
 
     def compare_analytic(self):
-        import matplotlib.pyplot as plt
-        import seaborn as sns
-
-        context = {'font.size': 16.0,
-                    'axes.labelsize': 16.0,
-                    'axes.titlesize': 16.0,
-                    'xtick.labelsize': 16.0,
-                    'ytick.labelsize': 16.0,
-                    'legend.fontsize': 16.0,
-                    'legend.title_fontsize': None,
-                    'axes.linewidth': 0.8,
-                    'grid.linewidth': 0.8,
-                    'lines.linewidth': 1.5,
-                    'lines.markersize': 6.0,
-                    'patch.linewidth': 1.0,
-                    'xtick.major.width': 0.8,
-                    'ytick.major.width': 0.8,
-                    'xtick.minor.width': 0.6,
-                    'ytick.minor.width': 0.6,
-                    'xtick.major.size': 3.5,
-                    'ytick.major.size': 3.5,
-                    'xtick.minor.size': 2.0,
-                    'ytick.minor.size': 2.0}
-
-        sns.set_theme(context=context, style="whitegrid", palette="colorblind", font="sans-serif", font_scale=1)
+        
+        nn.turn_the_lights_down_low()   # set_theme
+        
         # creating the array of t=0
         x = np.linspace(0, 1, self.Nx)
         t = np.linspace(0, 1, self.Nt)
-        time = [0, self.Nt*0.2, self.Nt*0.5, self.Nt*0.8]
+        temp_t = np.linspace(0, 1, 50)
+        time = [int(self.Nt*temp_t[1]), int(self.Nt*temp_t[10]), int(self.Nt*temp_t[20]), int(self.Nt*temp_t[35])]
 
-        figure, ax = plt.subplots(2, 2, sharex=True, figsize=(12, 10))
-        figure.tight_layout()
+        figure, ax = plt.subplots(2, 2, sharex=True, sharey=True, figsize=(13, 10))
+        # figure.tight_layout()
         
         for i in range(4):
             if i < 2:
@@ -118,30 +103,45 @@ class Explicit():
 
             hd = np.linspace(0, 1, 500)
             # plot
-            ax[row, col].plot(x, self.storage[int(time[i])], '-', lw=2, label="FTCS")
-            ax[row, col].plot(hd, self.analytic(hd, t[int(time[i])]), "--", lw=2, label="Analytic")
-            ax[row, col].text(0.5, 0.5, "MSE = %.2g" %self.mse(self.storage[int(time[i])], self.analytic(x, t[int(time[i])])))
+            ax[row, col].plot(x, self.storage[time[i],:], '-', lw=2, label="FTCS")
+            ax[row, col].plot(hd, self.analytic(hd, t[time[i]]), "--", lw=2, label="Analytic")
+            ax[row, col].text(0.3, 0.5, "MSE = %.2g" %self.mse(self.storage[time[i], :], self.analytic(x, t[time[i]])))
             ax[row, col].set_ylim((-0.01, 1.05))
             ax[row, col].set_xlim((-0.01, 1.01))
-            ax[row, col].set_xlabel("t")
-            ax[row, col].set_ylabel("x")
+            ax[row, col].set_title("t=%.3f" %(t[time[i]]))
         ax[0, 1].legend()
-        plt.savefig("./figs/compare_euler_analytic.pdf")
+        figure.savefig("./figs/compare_euler_analytic_%.2f.pdf" %self.h)
+        figure.supxlabel("x")
+        figure.supylabel("f(x, t)")
+        del ax
+        plt.close(figure)
 
-        fig = plt.figure(figsize=(12, 10))
+        fig = plt.figure(figsize=(12, 11))
         mse_list = []
 
-        ind = 0
-        for n in self.storage:
-            mse_list.append(self.mse(n, self.analytic(n, t[ind])))
-            ind += 1
+        for i in range(t.size):
+            mse_list.append(self.mse(self.storage[i, :], self.analytic(x, t[i])))
         
         plt.plot(t, mse_list, lw=2)
         plt.xlim((-0.01, 1.01))
+        plt.ylim((1e-12, 1e-4))
         plt.xlabel("t")
         plt.ylabel("MSE")
         plt.yscale("log")
-        fig.savefig("./figs/mse_euler_analytic.pdf")
+        fig.savefig("./figs/mse_euler_analytic_%.2f.pdf" %self.h)
+        plt.close(fig)
+
+        # plot close up at temp_t[45]
+        fig = plt.figure(figsize=(13, 10))
+        plt.plot(x, self.storage[time[-1], :], '-', lw=2, label="NN")
+        plt.plot(np.linspace(0, 1, 500), self.analytic(np.linspace(0, 1, 500), t[time[-1]]), "--", lw=2, label="Analytic")
+        plt.xlim((-0.01, 1.01))
+        plt.xlabel("x")
+        plt.ylabel("f(x, t=%.2f)" %t[time[-1]])
+        fig.text(0.3, 0.5, "MSE = %.2g" %self.mse(self.storage[time[-1], :], self.analytic(x, t[time[-1]])))
+        plt.legend()
+        fig.savefig("./figs/ecplicit_zoom_%.2f.pdf" %self.h)
+        plt.close(fig)
 
         return [t, mse_list]
     
