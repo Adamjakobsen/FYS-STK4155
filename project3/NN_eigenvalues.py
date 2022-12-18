@@ -1,4 +1,4 @@
-import plot_nn as pls
+
 import tensorflow as tf
 import matplotlib.pyplot as plt
 import numpy as np
@@ -188,6 +188,8 @@ class NN_eigen():
 
 
 if __name__ == "__main__":
+    from plot_nn import turn_the_lights_down_low
+    turn_the_lights_down_low()
     seed = 5
     np.random.seed(seed)
     tf.random.set_seed(seed)
@@ -229,34 +231,86 @@ if __name__ == "__main__":
     max_eigval = numpy_eigvals[max_idx]
     max_eigvec=numpy_eigvecs.T[max_idx]
 
+    print(f"Max numpy eigenvalue: {max_eigval}")
+    print(f"Max neural network eigenvalue: {eigvals[-1]}")
+    print(f"Max numpy eigenvector: {max_eigvec}")
+    print(f"Max neural network eigenvector: {eigvecs[-1]}")
+
 
 
     #Plot the eigenvalues
-    
-    # fig = plt.figure(figsize=(12, 10))
-    plt.plot(epochs_array, eigvals, label='NN')
-    plt.hlines(numpy_eigvals, 0, epochs, colors='r', linestyles='dashed', label='numpy', lw=2)
+    fig = plt.figure(figsize=(13, 10))
+    plt.plot(epochs_array, eigvals,"r", label='Neural network')
+    plt.hlines(numpy_eigvals, 0, epochs, colors='b', linestyles='dashed', label='Numerical diagonalization')
+    plt.yticks(numpy_eigvals)
+    plt.xlabel("epochs")
+    plt.ylabel(f"$eigenvalues$")
     plt.legend()
-    plt.show()
-    # plt.close(fig)
+    plt.tight_layout()
+    fig.savefig("Eigenvalues_max.pdf")
+    plt.close()
+    del fig
 
-    # fig = plt.figure(figsize=(12, 10))
     #Plot the eigenvector components
+    fig = plt.figure(figsize=(13, 10))
+    plt.hlines(max_eigvec, 0, epochs, colors='b', linestyles='dashed',label="Numerical diagonalization")
     for i in range(n):
-        plt.plot(epochs_array, eigvecs[:,i],label= f'NN component {i}')
-        plt.hlines(max_eigvec[i], 0, epochs, colors='r', linestyles='dashed')
-
-    plt.ylim(min(max_eigvec)-0.1, max(max_eigvec)+0.1) 
-    plt.show()
-
-    #plot mse eigenvalue
-    mse_eigval = np.square(eigvals - max_eigval)
-    plt.plot(epochs_array, mse_eigval, label='MSE')
+        plt.plot(epochs_array, eigvecs[:,i],label= f'i={i}')
+        
+    
+    plt.ylabel(r'v$_{i}$')
+    plt.xlabel("epochs")
+    
+    plt.ylim(min(max_eigvec)-0.05, max(max_eigvec)+0.05)
+    plt.yticks(max_eigvec)
     plt.legend()
-    plt.show()
-    # plt.close(fig)
+    plt.tight_layout()
+    fig.savefig("Eigenvec_max.pdf")
+    plt.close()
+    del fig
+
+ 
+
+    #starting from max eigenvalue eigenvector
+    x0 = max_eigvec
+    NN = NN_eigen(layers, A, t)
+
+    model = NN.model
+    eigvals, eigvecs = NN.predict(epochs, x0, t,lr)
 
 
+    fig = plt.figure(figsize=(13, 10))
+    plt.plot(epochs_array, eigvals,"r", label='Neural network')
+    plt.hlines(numpy_eigvals, 0, epochs, colors='b', linestyles='dashed', label='Numerical diagonalization')
+    plt.xlabel("epochs")
+    plt.ylabel(f"$eigenvalues$")
+    plt.yticks(numpy_eigvals)
+    plt.legend()
+    plt.tight_layout()
+    fig.savefig("Eigenvalues_eigenmax.pdf")
+    plt.close()
+    del fig
+
+    #A-->-A
+    NN = NN_eigen(layers, A, t, max=False)
+
+    model = NN.model
+    eigvals, eigvecs = NN.predict(epochs, x0, t,lr)
+
+
+    fig = plt.figure(figsize=(13, 10))
+    plt.plot(epochs_array, eigvals,"r", label='Neural network')
+    plt.hlines(numpy_eigvals, 0, epochs, colors='b', linestyles='dashed', label='Numerical diagonalization')
+    plt.xlabel("epochs")
+    plt.ylabel(f"$eigenvalues$")
+    plt.yticks(numpy_eigvals)
+    plt.legend()
+    plt.tight_layout()
+    fig.savefig("Eigenvalues_eigenmin.pdf")
+    plt.close()
+    del fig
+
+   
 
 
     ######### MIN EIGENVALUE #########
@@ -279,31 +333,45 @@ if __name__ == "__main__":
     min_eigval = numpy_eigvals[min_idx]
     min_eigvec=numpy_eigvecs.T[min_idx]
 
+    print(f"Min numpy eigenvalue: {min_eigval}")
+    print(f"Min neural network eigenvalue: {eigvals[-1]}")
+    print(f"Min numpy eigenvector: {min_eigvec}")
+    print(f"Min neural network eigenvector: {eigvecs[-1]}")
+
 
 
     #Plot the eigenvalues
-    # fig = plt.figure(figsize=(12, 10))
-    plt.plot(epochs_array, eigvals)
-    plt.hlines(numpy_eigvals, 0, epochs, colors='r', linestyles='dashed')
-    plt.show()
-    # plt.close(fig)
+    fig = plt.figure(figsize=(13, 10))
+    plt.plot(epochs_array, eigvals,"r", label='Neural network')
+    plt.hlines(numpy_eigvals, 0, epochs, colors='b', linestyles='dashed', label='Numerical diagonalization')
+    plt.xlabel("epochs")
+    plt.ylabel(f"$eigenvalues$")
+    plt.yticks(numpy_eigvals)
+    plt.legend()
+    plt.tight_layout()
+    fig.savefig("Eigenvalues_min.pdf")
+    plt.close()
+    del fig
 
     #Plot the eigenvector components
-    # fig = plt.figure(figsize=(12, 10))
+    fig = plt.figure(figsize=(13, 10))
+    plt.hlines(min_eigvec, 0, epochs, colors='b', linestyles='dashed',label="Numerical diagonalization")
     for i in range(n):
-        plt.plot(epochs_array, eigvecs[:,i])
-        plt.hlines(min_eigvec[i], 0, epochs, colors='r', linestyles='dashed')
-
-    plt.ylim(min(min_eigvec)-0.1, max(min_eigvec)+0.1) 
-    plt.show()
-    # plt.close(fig)
-
-    # fig = plt.figure(figsize=(12, 10))
-    mse_eigval = np.square(eigvals - min_eigval)
-    plt.plot(epochs_array, mse_eigval,label='MSE')
+        
+        
+        plt.plot(epochs_array, eigvecs[:,i],label= f'i={i}')
+    plt.ylabel(r'v$_{i}$')
+    plt.xlabel("epochs")
+    plt.ylim(min(min_eigvec)-0.1, max(min_eigvec)+0.1)
+    plt.yticks(min_eigvec)
     plt.legend()
-    plt.show()
-    # plt.close(fig)
+    plt.tight_layout()
+    fig.savefig("Eigenvec_min.pdf")
+    plt.close()
+    del fig
+
+
+
 
 
 
