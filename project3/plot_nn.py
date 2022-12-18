@@ -9,12 +9,12 @@ def turn_the_lights_down_low():
     Function for setting the plotting environment equal for all plots
     """
 
-    context = {'font.size': 22.0,
-                'axes.labelsize': 22.0,
-                'axes.titlesize': 22.0,
-                'xtick.labelsize': 22.0,
-                'ytick.labelsize': 22.0,
-                'legend.fontsize': 22.0,
+    context = {'font.size': 25.0,
+                'axes.labelsize': 25.0,
+                'axes.titlesize': 25.0,
+                'xtick.labelsize': 25.0,
+                'ytick.labelsize': 25.0,
+                'legend.fontsize': 25.0,
                 'legend.title_fontsize': None,
                 'axes.linewidth': 0.8,
                 'grid.linewidth': 0.8,
@@ -72,7 +72,7 @@ def plot_nn(network, model, n_epochs, learning, n_x, n_t):
     
     g_nn = tf.reshape(network.g(model, x_test, t_test), [n_t, n_x])
 
-    figure, ax = plt.subplots(2, 2, sharex=True, sharey=True, figsize=(13, 10))
+    figure, ax = plt.subplots(2, 2, sharex=True, sharey=True, figsize=(12, 10))
     # figure.tight_layout()
     
     ind = [int(1*(n_t/50)), int(10*(n_t/50)), int(20*(n_t/50)), int(35*(n_t/50))]
@@ -100,7 +100,7 @@ def plot_nn(network, model, n_epochs, learning, n_x, n_t):
     figure.savefig("./figs/compare_nn_analytic_epoch%d_dx%d_dt%d.pdf" %(n_epochs, n_x, n_t))
     plt.close(figure)
 
-    fig = plt.figure(figsize=(13, 10))
+    fig = plt.figure(figsize=(12, 10))
     mse_list = []
 
     j = 0
@@ -119,7 +119,7 @@ def plot_nn(network, model, n_epochs, learning, n_x, n_t):
 
     # close up plot
     placer = int(35*(n_t/50))
-    fig = plt.figure(figsize=(13, 10))
+    fig = plt.figure(figsize=(12, 10))
     plt.plot(x, g_nn[placer,:], '-', lw=2, label="NN")
     plt.plot(np.linspace(0, 1, 500), analytic(np.linspace(0, 1, 500), t[placer]), "--", lw=2, label="Analytic")
     plt.xlim((-0.01, 1.01))
@@ -133,7 +133,7 @@ def plot_nn(network, model, n_epochs, learning, n_x, n_t):
 
     # plotting the learning history
     epoch, learning = network.learning_history()
-    fig = plt.figure(figsize=(13, 10))
+    fig = plt.figure(figsize=(12, 10))
     plt.plot(epoch, learning, lw=2)
     plt.yscale("log")
     plt.xlabel("Epoch")
@@ -166,7 +166,7 @@ def test(network, model, n_x_test, n_t_test):
     
     g_nn = tf.reshape(network.g(model, x_test, t_test), [n_t_test, n_x_test])
 
-    figure, ax = plt.subplots(2, 2, sharex=True, sharey=True, figsize=(13, 10))
+    figure, ax = plt.subplots(2, 2, sharex=True, sharey=True, figsize=(12, 10))
     # figure.tight_layout()
     
     ind = [int(1*(n_t_test/50)), int(10*(n_t_test/50)), int(20*(n_t_test/50)), int(35*(n_t_test/50))]
@@ -194,7 +194,7 @@ def test(network, model, n_x_test, n_t_test):
     figure.savefig("./figs/compare_nn_analytic_test_dx%d_dt%d.pdf" %(n_x_test, n_t_test))
     plt.close(figure)
 
-    fig = plt.figure(figsize=(13, 10))
+    fig = plt.figure(figsize=(12, 10))
     mse_list = []
 
     j = 0
@@ -213,7 +213,7 @@ def test(network, model, n_x_test, n_t_test):
 
     # close up plot
     placer = int(35*(n_t_test/50))
-    fig = plt.figure(figsize=(13, 10))
+    fig = plt.figure(figsize=(12, 10))
     plt.plot(x, g_nn[placer,:], '-', lw=2, label="NN")
     plt.plot(np.linspace(0, 1, 500), analytic(np.linspace(0, 1, 500), t[placer]), "--", lw=2, label="Analytic")
     plt.xlim((-0.01, 1.01))
@@ -227,7 +227,7 @@ def test(network, model, n_x_test, n_t_test):
 
     # plotting the learning history
     epoch, learning = network.learning_history()
-    fig = plt.figure(figsize=(13, 10))
+    fig = plt.figure(figsize=(12, 10))
     plt.plot(epoch, learning, lw=2)
     plt.yscale("log")
     plt.xlabel("Epoch")

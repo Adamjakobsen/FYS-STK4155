@@ -90,7 +90,7 @@ class Explicit():
         temp_t = np.linspace(0, 1, 50)
         time = [int(self.Nt*temp_t[1]), int(self.Nt*temp_t[10]), int(self.Nt*temp_t[20]), int(self.Nt*temp_t[35])]
 
-        figure, ax = plt.subplots(2, 2, sharex=True, sharey=True, figsize=(13, 10))
+        figure, ax = plt.subplots(2, 2, sharex=True, sharey=True, figsize=(12, 10))
         # figure.tight_layout()
         
         for i in range(4):
@@ -110,10 +110,9 @@ class Explicit():
             ax[row, col].set_xlim((-0.01, 1.01))
             ax[row, col].set_title("t=%.3f" %(t[time[i]]))
         ax[0, 1].legend()
-        figure.savefig("./figs/compare_euler_analytic_%.2f.pdf" %self.h)
         figure.supxlabel("x")
         figure.supylabel("f(x, t)")
-        del ax
+        figure.savefig("./figs/compare_euler_analytic_%.2f.pdf" %self.h)
         plt.close(figure)
 
         fig = plt.figure(figsize=(12, 11))
@@ -132,7 +131,7 @@ class Explicit():
         plt.close(fig)
 
         # plot close up at temp_t[45]
-        fig = plt.figure(figsize=(13, 10))
+        fig = plt.figure(figsize=(12, 10))
         plt.plot(x, self.storage[time[-1], :], '-', lw=2, label="NN")
         plt.plot(np.linspace(0, 1, 500), self.analytic(np.linspace(0, 1, 500), t[time[-1]]), "--", lw=2, label="Analytic")
         plt.xlim((-0.01, 1.01))

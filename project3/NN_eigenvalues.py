@@ -1,4 +1,4 @@
-
+import plot_nn as pls
 import tensorflow as tf
 import matplotlib.pyplot as plt
 import numpy as np
@@ -191,6 +191,7 @@ if __name__ == "__main__":
     seed = 5
     np.random.seed(seed)
     tf.random.set_seed(seed)
+    # pls.turn_the_lights_down_low()
 
     #Define the matrix A
     n=6
@@ -232,11 +233,14 @@ if __name__ == "__main__":
 
     #Plot the eigenvalues
     
+    # fig = plt.figure(figsize=(12, 10))
     plt.plot(epochs_array, eigvals, label='NN')
-    plt.hlines(numpy_eigvals, 0, epochs, colors='r', linestyles='dashed', label='numpy')
+    plt.hlines(numpy_eigvals, 0, epochs, colors='r', linestyles='dashed', label='numpy', lw=2)
     plt.legend()
     plt.show()
+    # plt.close(fig)
 
+    # fig = plt.figure(figsize=(12, 10))
     #Plot the eigenvector components
     for i in range(n):
         plt.plot(epochs_array, eigvecs[:,i],label= f'NN component {i}')
@@ -250,6 +254,7 @@ if __name__ == "__main__":
     plt.plot(epochs_array, mse_eigval, label='MSE')
     plt.legend()
     plt.show()
+    # plt.close(fig)
 
 
 
@@ -277,22 +282,28 @@ if __name__ == "__main__":
 
 
     #Plot the eigenvalues
+    # fig = plt.figure(figsize=(12, 10))
     plt.plot(epochs_array, eigvals)
     plt.hlines(numpy_eigvals, 0, epochs, colors='r', linestyles='dashed')
     plt.show()
+    # plt.close(fig)
+
     #Plot the eigenvector components
+    # fig = plt.figure(figsize=(12, 10))
     for i in range(n):
         plt.plot(epochs_array, eigvecs[:,i])
         plt.hlines(min_eigvec[i], 0, epochs, colors='r', linestyles='dashed')
 
     plt.ylim(min(min_eigvec)-0.1, max(min_eigvec)+0.1) 
     plt.show()
+    # plt.close(fig)
 
+    # fig = plt.figure(figsize=(12, 10))
     mse_eigval = np.square(eigvals - min_eigval)
     plt.plot(epochs_array, mse_eigval,label='MSE')
     plt.legend()
     plt.show()
-
+    # plt.close(fig)
 
 
 
