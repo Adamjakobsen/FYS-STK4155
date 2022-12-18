@@ -3,7 +3,7 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 import numpy as np
 
-tf.keras.utils.set_random_seed(42)
+#tf.keras.utils.set_random_seed(42)
 tf.keras.backend.set_floatx("float64")
 
 
@@ -30,7 +30,7 @@ class NN_eigen():
         
         self.n=tf.shape(A)[0]
         layer_list = []
-        #layer_list.append(tf.keras.layers.Dense(self.n,input_shape=(1,), name="input"))
+        
         for layer in layers:
             layer_list.append(tf.keras.layers.Dense(
                 layer["nodes"], activation=layer["activation"]))
@@ -40,6 +40,7 @@ class NN_eigen():
 
 
         self.A = tf.cast(tf.convert_to_tensor(A), tf.float64)
+        
 
         self.t = tf.cast(tf.convert_to_tensor(t), tf.float64)
 
@@ -269,50 +270,23 @@ if __name__ == "__main__":
     plt.close()
     del fig
 
- 
-
-    #starting from max eigenvalue eigenvector
-    x0 = max_eigvec
-    NN = NN_eigen(layers, A, t)
-
-    model = NN.model
-    eigvals, eigvecs = NN.predict(epochs, x0, t,lr)
-
-
+    #plot mse eigenvalue
     fig = plt.figure(figsize=(13, 10))
-    plt.plot(epochs_array, eigvals,"r", label='Neural network')
-    plt.hlines(numpy_eigvals, 0, epochs, colors='b', linestyles='dashed', label='Numerical diagonalization')
+    mse_eigval = np.square(eigvals - max_eigval)
+    plt.plot(epochs_array, mse_eigval, label='MSE')
     plt.xlabel("epochs")
-    plt.ylabel(f"$eigenvalues$")
-    plt.yticks(numpy_eigvals)
+    plt.ylabel("MSE")
     plt.legend()
     plt.tight_layout()
-    fig.savefig("Eigenvalues_eigenmax.pdf")
+    fig.savefig("MSE_max.pdf")
     plt.close()
     del fig
+    
 
-    #A-->-A
-    NN = NN_eigen(layers, A, t, max=False)
-
-    model = NN.model
-    eigvals, eigvecs = NN.predict(epochs, x0, t,lr)
-
-
-    fig = plt.figure(figsize=(13, 10))
-    plt.plot(epochs_array, eigvals,"r", label='Neural network')
-    plt.hlines(numpy_eigvals, 0, epochs, colors='b', linestyles='dashed', label='Numerical diagonalization')
-    plt.xlabel("epochs")
-    plt.ylabel(f"$eigenvalues$")
-    plt.yticks(numpy_eigvals)
-    plt.legend()
-    plt.tight_layout()
-    fig.savefig("Eigenvalues_eigenmin.pdf")
-    plt.close()
-    del fig
 
    
 
-
+    
     ######### MIN EIGENVALUE #########
     
     NN = NN_eigen(layers, A, t, max=False)
@@ -367,6 +341,58 @@ if __name__ == "__main__":
     plt.legend()
     plt.tight_layout()
     fig.savefig("Eigenvec_min.pdf")
+    plt.close()
+    del fig
+
+    mse_eigval = np.square(eigvals - min_eigval)
+    fig = plt.figure(figsize=(13, 10))
+    plt.plot(epochs_array, mse_eigval,label='MSE')
+    plt.ylabel("MSE")
+    plt.xlabel("epochs")
+    plt.legend()
+    plt.tight_layout()
+    fig.savefig("MSE_min.pdf")
+    plt.close()
+    del fig
+
+    ####starting from an eigeinvector
+    
+    x0 = min_eigvec
+    NN = NN_eigen(layers, A, t, max=False)
+
+    model = NN.model
+    eigvals, eigvecs = NN.predict(epochs, x0, t,lr)
+
+
+    fig = plt.figure(figsize=(13, 10))
+    plt.plot(epochs_array, eigvals,"r", label='Neural network')
+    plt.hlines(numpy_eigvals, 0, epochs, colors='b', linestyles='dashed', label='Numerical diagonalization')
+    plt.xlabel("epochs")
+    plt.ylabel(f"$eigenvalues$")
+    plt.yticks(numpy_eigvals)
+    plt.legend()
+    plt.tight_layout()
+    fig.savefig("Eigenvalues_eigenmin.pdf")
+    plt.close()
+    del fig
+
+    #starting from max eigenvalue eigenvector
+    x0 = max_eigvec
+    NN = NN_eigen(layers, A, t)
+
+    model = NN.model
+    eigvals, eigvecs = NN.predict(epochs, x0, t,lr)
+
+
+    fig = plt.figure(figsize=(13, 10))
+    plt.plot(epochs_array, eigvals,"r", label='Neural network')
+    plt.hlines(numpy_eigvals, 0, epochs, colors='b', linestyles='dashed', label='Numerical diagonalization')
+    plt.xlabel("epochs")
+    plt.ylabel(f"$eigenvalues$")
+    plt.yticks(numpy_eigvals)
+    plt.legend()
+    plt.tight_layout()
+    fig.savefig("Eigenvalues_eigenmax.pdf")
     plt.close()
     del fig
 
